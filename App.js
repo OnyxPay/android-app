@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import { BackHandler, Linking, Platform, Alert } from 'react-native';
-import { WebView } from 'react-native-webview';
-import { uri } from './constants';
-import { PermissionsAndroid } from 'react-native';
+import React, {Component} from 'react';
+import {BackHandler, Linking, Platform, Alert} from 'react-native';
+import {WebView} from 'react-native-webview';
+import {uri} from './constants';
+import {PermissionsAndroid} from 'react-native';
 import RNFS from 'react-native-fs';
 
 class App extends Component {
@@ -21,12 +21,12 @@ class App extends Component {
       this.webview.goBack();
       return true;
     }
-  }
+  };
 
   downloadWallet(wallet) {
     const now = new Date();
     const now_string = `_${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getMilliseconds()}`;
-    RNFS.mkdir(`/storage/emulated/0/Onyxpay`)
+    RNFS.mkdir(`/storage/emulated/0/Onyxpay`);
     const path = `/storage/emulated/0/Onyxpay/onyx_pay_wallet${now_string}.dat`;
 
     RNFS.writeFile(path, wallet, 'utf8')
@@ -34,10 +34,10 @@ class App extends Component {
         Alert.alert(
           `Wallet file is succesfully saved as:`,
           `/storage/Onyxpay/onyx_pay_wallet${now_string}.dat`,
-          [{ text: 'OK' }]
+          [{text: 'OK'}],
         );
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err.message);
       });
   }
@@ -45,16 +45,16 @@ class App extends Component {
   async requestWriteExternalStoragePermission() {
     try {
       return await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
       );
     } catch (err) {
       console.log(err.message);
     }
   }
 
-  onMessageHandler = (event) => {
-    if (event.nativeEvent.data.startsWith("download_wallet")) {
-      const wallet = event.nativeEvent.data.slice("download_wallet".length);
+  onMessageHandler = event => {
+    if (event.nativeEvent.data.startsWith('download_wallet')) {
+      const wallet = event.nativeEvent.data.slice('download_wallet'.length);
       this.requestWriteExternalStoragePermission()
         .then(result => {
           if (result === PermissionsAndroid.RESULTS.GRANTED) {
@@ -62,17 +62,12 @@ class App extends Component {
             this.downloadWallet(wallet);
           } else {
             console.log('Permission denied');
-            Alert.alert(
-              `Wallet file is not saved`,
-              ``,
-              [{ text: 'OK' }]
-            );
+            Alert.alert(`Wallet file is not saved`, ``, [{text: 'OK'}]);
           }
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err.message);
         });
-
     }
 
     if (event.nativeEvent.data === 'navigationStateChange') {
@@ -80,15 +75,20 @@ class App extends Component {
         backButtonEnabled: event.nativeEvent.canGoBack,
       });
     }
-  }
+  };
 
-  onNavigationStateChangeHandler = (event) => {
-    if (Platform.OS === 'android' && event.title === "https://www.coinpayments.net/index.php" ||
-      Platform.OS === 'ios' && event.url === "https://www.coinpayments.net/index.php" && event.title !== "OnyxPay") {
+  onNavigationStateChangeHandler = event => {
+    if (
+      (Platform.OS === 'android' &&
+        event.title === 'https://www.coinpayments.net/index.php') ||
+      (Platform.OS === 'ios' &&
+        event.url === 'https://www.coinpayments.net/index.php' &&
+        event.title !== 'OnyxPay')
+    ) {
       this.webview.goBack();
       Linking.openURL(event.url);
     }
-  }
+  };
 
   render() {
     const injected = `
@@ -115,8 +115,10 @@ class App extends Component {
 
     return (
       <WebView
-        source={{ uri }}
-        ref={(ref) => { this.webview = ref; }}
+        source={{uri}}
+        ref={ref => {
+          this.webview = ref;
+        }}
         onNavigationStateChange={this.onNavigationStateChangeHandler}
         injectedJavaScript={injected}
         onMessage={this.onMessageHandler}
