@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BackHandler, Linking, Button, View, Platform, Alert } from 'react-native';
+import { BackHandler, Linking, Platform, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { uri } from './constants';
 import { PermissionsAndroid } from 'react-native';
