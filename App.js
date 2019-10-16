@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BackHandler, Linking, Button, View, Platform, Alert} from 'react-native';
+import { BackHandler, Linking, Button, View, Platform, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { uri } from './constants';
 import { PermissionsAndroid } from 'react-native';
@@ -9,11 +9,11 @@ class App extends Component {
   state = {};
 
   componentDidMount() {
-      BackHandler.addEventListener('hardwareBackPress', this.backHandler); 
+    BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
 
   componentWillUnmount() {
-      BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
+    BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
   backHandler = () => {
@@ -23,48 +23,30 @@ class App extends Component {
     }
   }
 
-  parseWallet(data) {
-    try {
-          return JSON.parse(data.slice("download_wallet".length));
-       } catch (e) {
-         console.error(e.message);
-       }
-  }
-
   downloadWallet(wallet) {
-    const timestamp = Date.now();
+    const now = new Date();
+    const now_string = `_${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getMilliseconds()}`;
     RNFS.mkdir(`/storage/emulated/0/Onyxpay`)
-    const path = `/storage/emulated/0/Onyxpay/onyx_pay_wallet${timestamp}.dat`;
+    const path = `/storage/emulated/0/Onyxpay/onyx_pay_wallet${now_string}.dat`;
 
-    RNFS.writeFile(path, JSON.stringify(wallet), 'utf8')
+    RNFS.writeFile(path, wallet, 'utf8')
       .then(() => {
-        console.log('Wallet file written');
+        Alert.alert(
+          `Wallet file is succesfully saved as:`,
+          `/storage/Onyxpay/onyx_pay_wallet${now_string}.dat`,
+          [{ text: 'OK' }]
+        );
       })
       .catch((err) => {
         console.log(err.message);
       });
   }
 
-  async requestWriteExternalStoragePermission(wallet) {
+  async requestWriteExternalStoragePermission() {
     try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: 'Onyxpay Write External Storage Permission',
-          message:
-            'Onyxpay app needs access to your external storage.' +
-            'Please grant it to save the wallet file.',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
+      return await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
       );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Permission granted');
-        this.downloadWallet(wallet);
-      } else {
-        console.log('Permission denied');
-      }
     } catch (err) {
       console.log(err.message);
     }
@@ -72,8 +54,25 @@ class App extends Component {
 
   onMessageHandler = (event) => {
     if (event.nativeEvent.data.startsWith("download_wallet")) {
-       const wallet = this.parseWallet(event.nativeEvent.data);
-       this.requestWriteExternalStoragePermission(wallet);
+      const wallet = event.nativeEvent.data.slice("download_wallet".length);
+      this.requestWriteExternalStoragePermission()
+        .then(result => {
+          if (result === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log('Permission granted');
+            this.downloadWallet(wallet);
+          } else {
+            console.log('Permission denied');
+            Alert.alert(
+              `Wallet file is not saved`,
+              ``,
+              [{ text: 'OK' }]
+            );
+          }
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+
     }
 
     if (event.nativeEvent.data === 'navigationStateChange') {
@@ -85,7 +84,7 @@ class App extends Component {
 
   onNavigationStateChangeHandler = (event) => {
     if (Platform.OS === 'android' && event.title === "https://www.coinpayments.net/index.php" ||
-      Platform.OS === 'ios' && event.url === "https://www.coinpayments.net/index.php" && event.title !== "OnyxPay") {            
+      Platform.OS === 'ios' && event.url === "https://www.coinpayments.net/index.php" && event.title !== "OnyxPay") {
       this.webview.goBack();
       Linking.openURL(event.url);
     }
@@ -93,11 +92,11 @@ class App extends Component {
 
   render() {
     const injected = `
-      window.addEventListener('download_wallet', function(event) {
+      window.addEventListener('download_wallet', function (event) {
         const message = 'download_wallet' + event.detail;
         window.ReactNativeWebView.postMessage(message);
       });
-      (function() {
+      (function () {
         function wrap(fn) {
           return function wrapper() {
             const res = fn.apply(this, arguments);
@@ -107,7 +106,7 @@ class App extends Component {
         }
         history.pushState = wrap(history.pushState);
         history.replaceState = wrap(history.replaceState);
-        window.addEventListener('popstate', function() {
+        window.addEventListener('popstate', function () {
           window.ReactNativeWebView.postMessage('navigationStateChange');
         });
       })();
@@ -122,30 +121,29 @@ class App extends Component {
         injectedJavaScript={injected}
         onMessage={this.onMessageHandler}
       />
-
     );
   }
 }
 export default App;
 
-        /* onError={event => {
-          console.log('onError message: ', JSON.stringify(event.nativeEvent));
-        }} */
-        /* onLoadStart={event => {
-          console.log('onLoadStart message: ', JSON.stringify(event.nativeEvent));
-        }}
-        onLoad={event => {
-          console.log('onLoad message: ', JSON.stringify(event.nativeEvent));
-        }}
-        onLoadEnd={event => {
-          console.log('onLoadEnd message: ', JSON.stringify(event.nativeEvent));
-        }}
-        onLoadProgress={event => {
-          console.log('onLoadProgress message: ', JSON.stringify(event.nativeEvent));
-        }}
-        onHttpError={event => {
-          console.log('onHttpError message: ', JSON.stringify(event.nativeEvent));
-        }}
-        onContentProcessDidTerminate={event => {
-          console.log('onContentProcessDidTerminate message: ', JSON.stringify(event.nativeEvent));
-        }} */
+/* onError={event => {
+  console.log('onError message: ', JSON.stringify(event.nativeEvent));
+}} */
+/* onLoadStart={event => {
+  console.log('onLoadStart message: ', JSON.stringify(event.nativeEvent));
+}}
+onLoad={event => {
+  console.log('onLoad message: ', JSON.stringify(event.nativeEvent));
+}}
+onLoadEnd={event => {
+  console.log('onLoadEnd message: ', JSON.stringify(event.nativeEvent));
+}}
+onLoadProgress={event => {
+  console.log('onLoadProgress message: ', JSON.stringify(event.nativeEvent));
+}}
+onHttpError={event => {
+  console.log('onHttpError message: ', JSON.stringify(event.nativeEvent));
+}}
+onContentProcessDidTerminate={event => {
+  console.log('onContentProcessDidTerminate message: ', JSON.stringify(event.nativeEvent));
+}} */
