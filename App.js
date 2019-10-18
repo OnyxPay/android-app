@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {
   BackHandler,
   Linking,
-  Platform,
   Alert,
   RefreshControl,
   ScrollView,
