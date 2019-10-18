@@ -17,7 +17,7 @@ import {WebView} from 'react-native-webview';
 import {uri} from './constants';
 import {PermissionsAndroid} from 'react-native';
 import RNFS from 'react-native-fs';
-import bgImg from "./android/app/src/main/res/assets/img/login.jpg";
+import bgImg from './android/app/src/main/res/assets/img/login.jpg';
 
 const INJECTED = `
   window.addEventListener('download_wallet', function (event) {
@@ -158,9 +158,7 @@ class App extends Component {
     const {isPullToRefreshEnabled} = this.state;
 
     const errorView = (
-      <ImageBackground style={styles.errorImg}
-        source={bgImg}
-      >
+      <ImageBackground style={styles.errorImg} source={bgImg}>
         <View style={styles.errorTextContainer}>
           <Text style={styles.errorText}>
             Please check your internet connection
@@ -213,13 +211,16 @@ const styles = StyleSheet.create({
   },
   errorTextContainer: {
     height: 50,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
+    top: '80%',
+    alignSelf: 'center',
   },
   errorText: {
-    color: "rgba(0, 0, 0, 0.45)",
+    color: 'rgba(0, 0, 0, 0.45)',
     fontSize: 16,
-    textAlign: "center",
-    marginTop: "auto",
-    marginBottom: "auto"
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    marginLeft: 20,
+    marginRight: 20,
   },
 });
