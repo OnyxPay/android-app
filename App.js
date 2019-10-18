@@ -1,12 +1,56 @@
 import React, {Component} from 'react';
-import {BackHandler, Linking, Platform, Alert} from 'react-native';
+import {
+  BackHandler,
+  Linking,
+  Platform,
+  Alert,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  StatusBar,
+  Dimensions,
+} from 'react-native';
 import {WebView} from 'react-native-webview';
 import {uri} from './constants';
 import {PermissionsAndroid} from 'react-native';
 import RNFS from 'react-native-fs';
 
+const INJECTED = `
+  window.addEventListener('download_wallet', function (event) {
+    const message = 'download_wallet' + event.detail;
+    window.ReactNativeWebView.postMessage(message);
+  });
+  (function () {
+    function wrap(fn) {
+      return function wrapper() {
+        const res = fn.apply(this, arguments);
+        window.ReactNativeWebView.postMessage('navigationStateChange');
+        return res;
+      }
+    }
+    history.pushState = wrap(history.pushState);
+    history.replaceState = wrap(history.replaceState);
+    window.addEventListener('popstate', function () {
+      window.ReactNativeWebView.postMessage('navigationStateChange');
+    });
+  })();
+  true;
+`;
+
 class App extends Component {
-  state = {};
+  constructor(props) {
+    super(props);
+    this.state = {
+      isPullToRefreshEnabled: true,
+    };
+    this.onNavigationStateChangeHandler = this.onNavigationStateChangeHandler.bind(
+      this,
+    );
+    this.onMessageHandler = this.onMessageHandler.bind(this);
+    this.backHandler = this.backHandler.bind(this);
+    this.onRefreshHandler = this.onRefreshHandler.bind(this);
+    this.onScrollHandler = this.onScrollHandler.bind(this);
+  }
 
   componentDidMount() {
     BackHandler.addEventListener('hardwareBackPress', this.backHandler);
@@ -16,12 +60,11 @@ class App extends Component {
     BackHandler.removeEventListener('hardwareBackPress', this.backHandler);
   }
 
-  backHandler = () => {
-    if (this.state.backButtonEnabled) {
-      this.webview.goBack();
-      return true;
-    }
-  };
+  shouldComponentUpdate(nextProps, nextState) {
+    return (
+      nextState.isPullToRefreshEnabled !== this.state.isPullToRefreshEnabled
+    );
+  }
 
   downloadWallet(wallet) {
     const now = new Date();
@@ -52,7 +95,7 @@ class App extends Component {
     }
   }
 
-  onMessageHandler = event => {
+  onMessageHandler(event) {
     if (event.nativeEvent.data.startsWith('download_wallet')) {
       const wallet = event.nativeEvent.data.slice('download_wallet'.length);
       this.requestWriteExternalStoragePermission()
@@ -75,9 +118,9 @@ class App extends Component {
         backButtonEnabled: event.nativeEvent.canGoBack,
       });
     }
-  };
+  }
 
-  onNavigationStateChangeHandler = event => {
+  onNavigationStateChangeHandler(event) {
     if (
       (Platform.OS === 'android' &&
         event.title === 'https://www.coinpayments.net/index.php') ||
@@ -88,45 +131,65 @@ class App extends Component {
       this.webview.goBack();
       Linking.openURL(event.url);
     }
-  };
+  }
+
+  backHandler() {
+    if (this.state.backButtonEnabled) {
+      this.webview.goBack();
+      return true;
+    }
+  }
+
+  onRefreshHandler() {
+    this.webview.reload();
+  }
+
+  onScrollHandler(event) {
+    this.setState({
+      isPullToRefreshEnabled: event.nativeEvent.contentOffset.y === 0,
+    });
+  }
 
   render() {
-    const injected = `
-      window.addEventListener('download_wallet', function (event) {
-        const message = 'download_wallet' + event.detail;
-        window.ReactNativeWebView.postMessage(message);
-      });
-      (function () {
-        function wrap(fn) {
-          return function wrapper() {
-            const res = fn.apply(this, arguments);
-            window.ReactNativeWebView.postMessage('navigationStateChange');
-            return res;
-          }
-        }
-        history.pushState = wrap(history.pushState);
-        history.replaceState = wrap(history.replaceState);
-        window.addEventListener('popstate', function () {
-          window.ReactNativeWebView.postMessage('navigationStateChange');
-        });
-      })();
-      true;
-    `;
+    const {isPullToRefreshEnabled} = this.state;
 
     return (
-      <WebView
-        source={{uri}}
-        ref={ref => {
-          this.webview = ref;
-        }}
-        onNavigationStateChange={this.onNavigationStateChangeHandler}
-        injectedJavaScript={injected}
-        onMessage={this.onMessageHandler}
-      />
+      <ScrollView
+        style={styles.scrollview_container}
+        refreshControl={
+          <RefreshControl
+            refreshing={false}
+            enabled={isPullToRefreshEnabled}
+            onRefresh={this.onRefreshHandler}
+          />
+        }>
+        <WebView
+          style={styles.webview}
+          source={{uri}}
+          ref={ref => {
+            this.webview = ref;
+          }}
+          onNavigationStateChange={this.onNavigationStateChangeHandler}
+          injectedJavaScript={INJECTED}
+          onMessage={this.onMessageHandler}
+          onScroll={this.onScrollHandler}
+        />
+      </ScrollView>
     );
   }
 }
 export default App;
+
+const styles = StyleSheet.create({
+  scrollview_container: {
+    flex: 1,
+    height: '100%',
+  },
+  webview: {
+    width: '100%',
+    height: Dimensions.get('window').height - StatusBar.currentHeight,
+  },
+});
 
 /* onError={event => {
   console.log('onError message: ', JSON.stringify(event.nativeEvent));
