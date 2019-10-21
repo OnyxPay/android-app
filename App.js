@@ -14,6 +14,7 @@ import {WebView} from 'react-native-webview';
 import {uri} from './constants';
 import {PermissionsAndroid} from 'react-native';
 import RNFS from 'react-native-fs';
+import SplashScreen from 'react-native-splash-screen';
 
 const INJECTED = `
   window.addEventListener('download_wallet', function (event) {
@@ -53,6 +54,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    SplashScreen.hide();
     BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
 
