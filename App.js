@@ -17,6 +17,7 @@ import {uri, walletPath, externalLinks} from './constants';
 import {PermissionsAndroid} from 'react-native';
 import RNFS from 'react-native-fs';
 import bgImg from './android/app/src/main/res/assets/img/login.jpg';
+import SplashScreen from 'react-native-splash-screen';
 
 const INJECTED = `
   window.addEventListener('download_wallet', function (event) {
@@ -56,6 +57,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    SplashScreen.hide();
     BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
 
