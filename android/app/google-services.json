@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "587553346763",
+    "firebase_url": "https://onyxpay-36a29.firebaseio.com",
+    "project_id": "onyxpay-36a29",
+    "storage_bucket": "onyxpay-36a29.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:587553346763:android:72322dc0429a629eaf774e",
+        "android_client_info": {
+          "package_name": "com.onyxpay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "587553346763-fcmitv5u07uft3jh6f7hu0dakcq6jpce.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6T4PWbnRl5EimKRPmR4l0iP1zr-PzKrw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "587553346763-fcmitv5u07uft3jh6f7hu0dakcq6jpce.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
