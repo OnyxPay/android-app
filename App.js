@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {
   BackHandler,
   Linking,
-  Platform,
   Alert,
   RefreshControl,
   ScrollView,
@@ -14,7 +13,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
-import {uri, walletPath} from './constants';
+import {uri, walletPath, externalLinks} from './constants';
 import {PermissionsAndroid} from 'react-native';
 import RNFS from 'react-native-fs';
 import bgImg from './android/app/src/main/res/assets/img/login.jpg';
@@ -126,11 +125,9 @@ class App extends Component {
 
   onNavigationStateChangeHandler(event) {
     if (
-      (Platform.OS === 'android' &&
-        event.title === 'https://www.coinpayments.net/index.php') ||
-      (Platform.OS === 'ios' &&
-        event.url === 'https://www.coinpayments.net/index.php' &&
-        event.title !== 'OnyxPay')
+      externalLinks.includes(event.title) ||
+      event.title.startsWith('https://t.me/') ||
+      (event.title === 'https://www.onyxpay.co' && event.canGoBack === true)
     ) {
       this.webview.goBack();
       Linking.openURL(event.url);
