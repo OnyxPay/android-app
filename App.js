@@ -8,11 +8,15 @@ import {
   StyleSheet,
   StatusBar,
   Dimensions,
+  View,
+  Text,
+  ImageBackground,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
-import {uri, externalLinks} from './constants';
+import {uri, walletPath, externalLinks} from './constants';
 import {PermissionsAndroid} from 'react-native';
 import RNFS from 'react-native-fs';
+import bgImg from './android/app/src/main/res/assets/img/login.jpg';
 
 const INJECTED = `
   window.addEventListener('download_wallet', function (event) {
@@ -68,8 +72,8 @@ class App extends Component {
   downloadWallet(wallet) {
     const now = new Date();
     const now_string = `_${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getMilliseconds()}`;
-    RNFS.mkdir(`/storage/emulated/0/Onyxpay`);
-    const path = `/storage/emulated/0/Onyxpay/onyx_pay_wallet${now_string}.dat`;
+    RNFS.mkdir(walletPath);
+    const path = `${walletPath}/onyx_pay_wallet${now_string}.dat`;
 
     RNFS.writeFile(path, wallet, 'utf8')
       .then(() => {
@@ -150,9 +154,19 @@ class App extends Component {
   render() {
     const {isPullToRefreshEnabled} = this.state;
 
+    const errorView = (
+      <ImageBackground style={styles.errorImg} source={bgImg}>
+        <View style={styles.errorTextContainer}>
+          <Text style={styles.errorText}>
+            Please check your internet connection
+          </Text>
+        </View>
+      </ImageBackground>
+    );
+
     return (
       <ScrollView
-        style={styles.scrollview_container}
+        style={styles.scrollViewContainer}
         refreshControl={
           <RefreshControl
             refreshing={false}
@@ -161,7 +175,7 @@ class App extends Component {
           />
         }>
         <WebView
-          style={styles.webview}
+          style={styles.webView}
           source={{uri}}
           ref={ref => {
             this.webview = ref;
@@ -170,6 +184,7 @@ class App extends Component {
           injectedJavaScript={INJECTED}
           onMessage={this.onMessageHandler}
           onScroll={this.onScrollHandler}
+          renderError={() => errorView}
         />
       </ScrollView>
     );
@@ -178,34 +193,31 @@ class App extends Component {
 export default App;
 
 const styles = StyleSheet.create({
-  scrollview_container: {
-    flex: 1,
-    height: '100%',
+  scrollViewContainer: {
+    ...StyleSheet.absoluteFillObject,
   },
-  webview: {
+  webView: {
     width: '100%',
     height: Dimensions.get('window').height - StatusBar.currentHeight,
   },
+  errorImg: {
+    width: '100%',
+    height: Dimensions.get('window').height - StatusBar.currentHeight,
+    position: 'absolute',
+    top: 0,
+  },
+  errorTextContainer: {
+    height: 50,
+    backgroundColor: '#fff',
+    top: '80%',
+    alignSelf: 'center',
+  },
+  errorText: {
+    color: 'rgba(0, 0, 0, 0.45)',
+    fontSize: 16,
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    marginLeft: 20,
+    marginRight: 20,
+  },
 });
-
-/* onError={event => {
-  console.log('onError message: ', JSON.stringify(event.nativeEvent));
-}} */
-/* onLoadStart={event => {
-  console.log('onLoadStart message: ', JSON.stringify(event.nativeEvent));
-}}
-onLoad={event => {
-  console.log('onLoad message: ', JSON.stringify(event.nativeEvent));
-}}
-onLoadEnd={event => {
-  console.log('onLoadEnd message: ', JSON.stringify(event.nativeEvent));
-}}
-onLoadProgress={event => {
-  console.log('onLoadProgress message: ', JSON.stringify(event.nativeEvent));
-}}
-onHttpError={event => {
-  console.log('onHttpError message: ', JSON.stringify(event.nativeEvent));
-}}
-onContentProcessDidTerminate={event => {
-  console.log('onContentProcessDidTerminate message: ', JSON.stringify(event.nativeEvent));
-}} */
