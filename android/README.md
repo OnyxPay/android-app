@@ -13,8 +13,8 @@ storeFile=keystore.jks
 
 To build & sign aab:
 
-## docker run --rm -v \${PWD}:/onyxpay android-sdk sh -c "cd android;./gradlew clean;./gradlew bundleRelease"
+## docker run --rm -v ${PWD}:/onyxpay android-sdk sh -c "cd android;./gradlew clean;./gradlew bundleRelease"
 
 To build & sing apk:
 
-## docker run --rm -v \${PWD}:/onyxpay android-sdk sh -c "cd android;./gradlew clean;./gradlew assembleRelease"
+## docker run --rm -v ${PWD}:/onyxpay android-sdk sh -c "cd android;./gradlew clean;./gradlew assembleRelease"
