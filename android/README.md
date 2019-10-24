@@ -11,10 +11,6 @@ keyPassword=pass2
 keyAlias=keyalias
 storeFile=keystore.jks
 
-To build & sign aab:
+To build & sign release boundle:
 
 ## docker run --rm -v ${PWD}:/onyxpay android-sdk sh -c "cd android;./gradlew clean;./gradlew bundleRelease"
-
-To build & sing apk:
-
-## docker run --rm -v ${PWD}:/onyxpay android-sdk sh -c "cd android;./gradlew clean;./gradlew assembleRelease"
