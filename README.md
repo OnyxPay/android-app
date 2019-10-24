@@ -13,4 +13,4 @@ storeFile=keystore.jks
 
 To build & sign release boundle:
 
-## docker run --rm -v ${PWD}:/onyxpay android-sdk sh -c "cd android;./gradlew clean;./gradlew bundleRelease"
+## docker run --rm -v ${PWD}:/onyxpay android-sdk sh -c "cd android;gradle clean;gradle bundleRelease"
