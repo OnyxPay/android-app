@@ -1,6 +1,6 @@
 To build image of android sdk:
 
-## docker-compose build
+## docker build -t android-sdk .
 
 then
 
@@ -13,4 +13,4 @@ storeFile=keystore.jks
 
 To build & sign release boundle:
 
-## docker run --rm -v ${PWD}:/onyxpay android-sdk sh -c "cd android;gradle clean;gradle bundleRelease"
+## docker run --rm -v ${PWD}:/onyxpay android-sdk

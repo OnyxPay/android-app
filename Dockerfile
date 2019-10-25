@@ -19,6 +19,7 @@ RUN wget -q https://services.gradle.org/distributions/gradle-5.5-all.zip \
     && rm gradle-5.5-all.zip
 
 ENV GRADLE_HOME="/opt/gradle-5.5"
+ENV GRADLE_USER_HOME="/opt/gradle-5.5"
 ENV PATH "$PATH:/opt/gradle-5.5/bin"
 
 #Install Android Build Tools
@@ -38,3 +39,5 @@ RUN apt-get -y install nodejs
 
 RUN mkdir /onyxpay
 WORKDIR /onyxpay
+
+CMD sh -c "cd android;gradle clean;gradle bundleRelease"
