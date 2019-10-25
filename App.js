@@ -57,7 +57,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    SplashScreen.hide();
     BackHandler.addEventListener('hardwareBackPress', this.backHandler);
   }
 
@@ -187,6 +186,7 @@ class App extends Component {
           onMessage={this.onMessageHandler}
           onScroll={this.onScrollHandler}
           renderError={() => errorView}
+          onLoadEnd={() => SplashScreen.hide()}
         />
       </ScrollView>
     );
