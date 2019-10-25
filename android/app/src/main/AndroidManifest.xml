@@ -6,8 +6,7 @@
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
-      android:icon="@mipmap/onyxpayiconlittle"
-      android:roundIcon="@mipmap/onyxpayiconlittleround"
+      android:icon="@mipmap/icon"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
 

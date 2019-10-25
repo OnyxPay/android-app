@@ -175,6 +175,10 @@ class App extends Component {
             onRefresh={this.onRefreshHandler}
           />
         }>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="#310D31"
+        />
         <WebView
           style={styles.webView}
           source={{uri}}
@@ -197,6 +201,7 @@ export default App;
 const styles = StyleSheet.create({
   scrollViewContainer: {
     ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#310D31'
   },
   webView: {
     width: '100%',
