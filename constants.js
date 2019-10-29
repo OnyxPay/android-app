@@ -5,7 +5,6 @@ export const uri = 'https://preprod.onyxpay.co';
 export const walletPath = '/storage/emulated/0/Onyxpay';
 
 export const externalLinks = [
-  'https://www.coinpayments.net/index.php',
   'https://wallet.onyxpay.co',
   'https://onyxcoin.io',
 ];

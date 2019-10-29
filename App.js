@@ -20,24 +20,27 @@ import bgImg from './android/app/src/main/res/assets/img/login.jpg';
 import SplashScreen from 'react-native-splash-screen';
 
 const INJECTED = `
-  window.addEventListener('download_wallet', function (event) {
-    const message = 'download_wallet' + event.detail;
-    window.ReactNativeWebView.postMessage(message);
-  });
-  (function () {
-    function wrap(fn) {
-      return function wrapper() {
-        const res = fn.apply(this, arguments);
-        window.ReactNativeWebView.postMessage('navigationStateChange');
-        return res;
-      }
-    }
-    history.pushState = wrap(history.pushState);
-    history.replaceState = wrap(history.replaceState);
-    window.addEventListener('popstate', function () {
-      window.ReactNativeWebView.postMessage('navigationStateChange');
+  if (!window.ReactNativeWebView.hasInjectedJS) {
+    window.addEventListener('download_wallet', function (event) {
+      const message = 'download_wallet' + event.detail;
+      window.ReactNativeWebView.postMessage(message);
     });
-  })();
+    (function () {
+      function wrap(fn) {
+        return function wrapper() {
+          const res = fn.apply(this, arguments);
+          window.ReactNativeWebView.postMessage('navigationStateChange');
+          return res;
+        }
+      }
+      history.pushState = wrap(history.pushState);
+      history.replaceState = wrap(history.replaceState);
+      window.addEventListener('popstate', function () {
+        window.ReactNativeWebView.postMessage('navigationStateChange');
+      });
+    })();
+    window.ReactNativeWebView.hasInjectedJS = true;
+  }
   true;
 `;
 
@@ -128,6 +131,7 @@ class App extends Component {
     if (
       externalLinks.includes(event.title) ||
       event.title.startsWith('https://t.me/') ||
+      event.title.startsWith('https://www.coinpayments.net/index.php') ||
       (event.title === 'https://www.onyxpay.co' && event.canGoBack === true)
     ) {
       this.webview.goBack();
