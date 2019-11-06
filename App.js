@@ -57,6 +57,7 @@ class App extends Component {
     this.backHandler = this.backHandler.bind(this);
     this.onRefreshHandler = this.onRefreshHandler.bind(this);
     this.onScrollHandler = this.onScrollHandler.bind(this);
+    this.onLayoutHandler = this.onLayoutHandler.bind(this);
   }
 
   componentDidMount() {
@@ -69,7 +70,8 @@ class App extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return (
-      nextState.isPullToRefreshEnabled !== this.state.isPullToRefreshEnabled
+      nextState.isPullToRefreshEnabled !== this.state.isPullToRefreshEnabled ||
+      nextState.orientation !== this.state.orientation
     );
   }
 
@@ -156,11 +158,31 @@ class App extends Component {
     });
   }
 
+  onLayoutHandler(e) {
+    //to force update
+    this.setState({
+      orientation: this.orientation(),
+    });
+  }
+
+  orientation() {
+    return Dimensions.get('window').width < Dimensions.get('window').height
+      ? 'portrait'
+      : 'landscape';
+  }
+
   render() {
     const {isPullToRefreshEnabled} = this.state;
-
+    
     const errorView = (
-      <ImageBackground style={styles.errorImg} source={bgImg}>
+      <ImageBackground
+        style={{
+          width: '100%',
+          height: Dimensions.get('window').height - StatusBar.currentHeight,
+          position: 'absolute',
+          top: 0,
+        }}
+        source={bgImg}>
         <View style={styles.errorTextContainer}>
           <Text style={styles.errorText}>
             Please check your internet connection
@@ -171,6 +193,7 @@ class App extends Component {
 
     return (
       <ScrollView
+        onLayout={this.onLayoutHandler}
         style={styles.scrollViewContainer}
         refreshControl={
           <RefreshControl
@@ -179,12 +202,12 @@ class App extends Component {
             onRefresh={this.onRefreshHandler}
           />
         }>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="#310D31"
-        />
+        <StatusBar barStyle="light-content" backgroundColor="#310D31" />
         <WebView
-          style={styles.webView}
+          style={{
+            width: '100%',
+            height: Dimensions.get('window').height - StatusBar.currentHeight,
+          }}
           source={{uri}}
           ref={ref => {
             this.webview = ref;
@@ -205,17 +228,7 @@ export default App;
 const styles = StyleSheet.create({
   scrollViewContainer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#310D31'
-  },
-  webView: {
-    width: '100%',
-    height: Dimensions.get('window').height - StatusBar.currentHeight,
-  },
-  errorImg: {
-    width: '100%',
-    height: Dimensions.get('window').height - StatusBar.currentHeight,
-    position: 'absolute',
-    top: 0,
+    backgroundColor: '#310D31',
   },
   errorTextContainer: {
     height: 50,
