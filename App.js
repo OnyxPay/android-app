@@ -25,6 +25,12 @@ const INJECTED = `
       const message = 'download_wallet' + event.detail;
       window.ReactNativeWebView.postMessage(message);
     });
+
+    window.addEventListener('openURL', function (event) {
+      const message = 'openURL' + event.detail;
+      window.ReactNativeWebView.postMessage(message);
+    });
+
     (function () {
       function wrap(fn) {
         return function wrapper() {
@@ -50,9 +56,6 @@ class App extends Component {
     this.state = {
       isPullToRefreshEnabled: true,
     };
-    this.onNavigationStateChangeHandler = this.onNavigationStateChangeHandler.bind(
-      this,
-    );
     this.onMessageHandler = this.onMessageHandler.bind(this);
     this.backHandler = this.backHandler.bind(this);
     this.onRefreshHandler = this.onRefreshHandler.bind(this);
@@ -127,17 +130,10 @@ class App extends Component {
         backButtonEnabled: event.nativeEvent.canGoBack,
       });
     }
-  }
 
-  onNavigationStateChangeHandler(event) {
-    if (
-      externalLinks.includes(event.title) ||
-      event.title.startsWith('https://t.me/') ||
-      event.title.startsWith('https://www.coinpayments.net/index.php') ||
-      (event.title === 'https://www.onyxpay.co' && event.canGoBack === true)
-    ) {
-      this.webview.goBack();
-      Linking.openURL(event.url);
+    if (event.nativeEvent.data.startsWith('openURL')) {
+      const url = event.nativeEvent.data.slice('openURL'.length);
+      Linking.openURL(url);
     }
   }
 
@@ -212,12 +208,12 @@ class App extends Component {
           ref={ref => {
             this.webview = ref;
           }}
-          onNavigationStateChange={this.onNavigationStateChangeHandler}
           injectedJavaScript={INJECTED}
           onMessage={this.onMessageHandler}
           onScroll={this.onScrollHandler}
           renderError={() => errorView}
           onLoadEnd={() => SplashScreen.hide()}
+          applicationNameForUserAgent={'Android'}
         />
       </ScrollView>
     );
