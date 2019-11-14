@@ -13,7 +13,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
-import {uri, walletPath, externalLinks} from './constants';
+import {uri, walletPath} from './constants';
 import {PermissionsAndroid} from 'react-native';
 import RNFS from 'react-native-fs';
 import bgImg from './android/app/src/main/res/assets/img/login.jpg';
@@ -80,7 +80,7 @@ class App extends Component {
 
   downloadWallet(wallet) {
     const now = new Date();
-    const now_string = `_${now.getFullYear()}-${now.getMonth()}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getMilliseconds()}`;
+    const now_string = `_${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}-${now.getMilliseconds()}`;
     RNFS.mkdir(walletPath);
     const path = `${walletPath}/onyx_pay_wallet${now_string}.dat`;
 
