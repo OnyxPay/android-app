@@ -212,7 +212,9 @@ class App extends Component {
           onMessage={this.onMessageHandler}
           onScroll={this.onScrollHandler}
           renderError={() => errorView}
-          onLoadEnd={() => SplashScreen.hide()}
+          onLoadEnd={(e) => {
+            if (!e.nativeEvent.loading) SplashScreen.hide(); //on some devices this event fires with loading === true when the loading isn't over yet
+          }}
           applicationNameForUserAgent={'OnyxpayAndroidWebview'}
         />
       </ScrollView>
